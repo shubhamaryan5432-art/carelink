@@ -12,13 +12,6 @@ type Appt = {
   doctor_id: string;
   slots: Slot | Slot[] | null;
 };
-type Rx = {
-  appointment_id: string;
-  diagnosis: string;
-  medicines: string[];
-  advice: string | null;
-  follow_up: string | null;
-};
 const LABEL: Record<string, string> = {
   pending_payment: "Booked, payment step coming soon",
   confirmed: "Confirmed",
@@ -46,13 +39,12 @@ export default async function Appointments() {
     .in("id", appts.map((a) => a.patient_id));
   const { data: rxs } = await sb
     .from("prescriptions")
-    .select("appointment_id, diagnosis, medicines, advice, follow_up")
+    .select("appointment_id")
     .in("appointment_id", appts.map((a) => a.id));
   const names = new Map<string, string>();
   (dirs ?? []).forEach((d) => names.set(d.id, d.full_name ?? "Doctor"));
   (pats ?? []).forEach((p) => names.set(p.id, p.full_name ?? "Patient"));
-  const rxById = new Map<string, Rx>();
-  ((rxs ?? []) as unknown as Rx[]).forEach((r) => rxById.set(r.appointment_id, r));
+  const hasRx = new Set((rxs ?? []).map((r) => r.appointment_id));
 
   const slotOf = (s: Appt["slots"]) => (Array.isArray(s) ? s[0] : s);
   const now = Date.now();
@@ -68,7 +60,6 @@ export default async function Appointments() {
         const end = s ? new Date(s.ends_at).getTime() : 0;
         const live = a.status === "confirmed" && now >= start - 10 * 60000 && now <= end + 15 * 60000;
         const isDoctor = a.doctor_id === user.id;
-        const rx = rxById.get(a.id);
         const room = `https://meet.jit.si/carelink-${a.id.replace(/-/g, "")}`;
         return (
           <div key={a.id} style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12, margin: "12px 0" }}>
@@ -90,18 +81,11 @@ export default async function Appointments() {
                 <p>The video link opens 10 minutes before the start time.</p>
               )
             )}
-            {isDoctor && !rx && (a.status === "confirmed" || a.status === "completed") && (
+            {isDoctor && !hasRx.has(a.id) && (a.status === "confirmed" || a.status === "completed") && (
               <p><Link href={`/appointments/${a.id}/rx`}>Write prescription</Link></p>
             )}
-            {rx && (
-              <div style={{ background: "#f3f6f5", borderRadius: 8, padding: 10, marginTop: 8 }}>
-                <b>Prescription</b>
-                <div>Diagnosis: {rx.diagnosis}</div>
-                <div>Medicines:</div>
-                <ul>{(rx.medicines ?? []).map((m, i) => <li key={i}>{m}</li>)}</ul>
-                {rx.advice && <div>Advice: {rx.advice}</div>}
-                {rx.follow_up && <div>Follow-up: {rx.follow_up}</div>}
-              </div>
+            {hasRx.has(a.id) && (
+              <p><Link href={`/appointments/${a.id}/prescription`}><b>View prescription</b></Link></p>
             )}
           </div>
         );
