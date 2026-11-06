@@ -10,22 +10,24 @@ type Appt = {
   reason: string | null;
   patient_id: string;
   doctor_id: string;
+  created_at: string;
   slots: Slot | Slot[] | null;
 };
 const LABEL: Record<string, string> = {
-  pending_payment: "Booked, payment step coming soon",
+  pending_payment: "Waiting for payment",
   confirmed: "Confirmed",
   completed: "Completed",
-  cancelled: "Cancelled",
+  cancelled: "Cancelled (not paid in time)",
 };
 
 export default async function Appointments() {
   const sb = await supabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) redirect("/login");
+  await sb.rpc("expire_unpaid");
   const { data } = await sb
     .from("appointments")
-    .select("id, status, reason, patient_id, doctor_id, slots(starts_at, ends_at)")
+    .select("id, status, reason, patient_id, doctor_id, created_at, slots(starts_at, ends_at)")
     .order("created_at", { ascending: false });
   const appts = (data ?? []) as unknown as Appt[];
 
@@ -74,6 +76,9 @@ export default async function Appointments() {
             </div>
             {a.reason && <div>Reason: {a.reason}</div>}
             <div>{LABEL[a.status] ?? a.status}</div>
+            {!isDoctor && a.status === "pending_payment" && (
+              <p><Link href={`/pay/${a.id}`}><b>Pay now to confirm</b></Link></p>
+            )}
             {a.status === "confirmed" && (
               live ? (
                 <p><a href={room} target="_blank" rel="noopener noreferrer"><b>Join video consult</b></a></p>
