@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 
 const IST = "Asia/Kolkata";
-type Slot = { starts_at: string };
+type Slot = { starts_at: string; ends_at: string };
 type Appt = {
   id: string;
   status: string;
@@ -11,6 +11,13 @@ type Appt = {
   patient_id: string;
   doctor_id: string;
   slots: Slot | Slot[] | null;
+};
+type Rx = {
+  appointment_id: string;
+  diagnosis: string;
+  medicines: string[];
+  advice: string | null;
+  follow_up: string | null;
 };
 const LABEL: Record<string, string> = {
   pending_payment: "Booked, payment step coming soon",
@@ -25,7 +32,7 @@ export default async function Appointments() {
   if (!user) redirect("/login");
   const { data } = await sb
     .from("appointments")
-    .select("id, status, reason, patient_id, doctor_id, slots(starts_at)")
+    .select("id, status, reason, patient_id, doctor_id, slots(starts_at, ends_at)")
     .order("created_at", { ascending: false });
   const appts = (data ?? []) as unknown as Appt[];
 
@@ -37,33 +44,68 @@ export default async function Appointments() {
     .from("profiles")
     .select("id, full_name")
     .in("id", appts.map((a) => a.patient_id));
+  const { data: rxs } = await sb
+    .from("prescriptions")
+    .select("appointment_id, diagnosis, medicines, advice, follow_up")
+    .in("appointment_id", appts.map((a) => a.id));
   const names = new Map<string, string>();
   (dirs ?? []).forEach((d) => names.set(d.id, d.full_name ?? "Doctor"));
   (pats ?? []).forEach((p) => names.set(p.id, p.full_name ?? "Patient"));
+  const rxById = new Map<string, Rx>();
+  ((rxs ?? []) as unknown as Rx[]).forEach((r) => rxById.set(r.appointment_id, r));
 
-  const when = (s: Appt["slots"]) => {
-    const one = Array.isArray(s) ? s[0] : s;
-    return one
-      ? new Date(one.starts_at).toLocaleString("en-IN", {
-          timeZone: IST, weekday: "short", day: "numeric", month: "short",
-          hour: "numeric", minute: "2-digit",
-        })
-      : "";
-  };
+  const slotOf = (s: Appt["slots"]) => (Array.isArray(s) ? s[0] : s);
+  const now = Date.now();
 
   return (
     <main style={{ maxWidth: 520, margin: "40px auto", padding: 16 }}>
       <h1>My appointments</h1>
       <p><Link href="/doctors">Book another</Link></p>
       {appts.length === 0 && <p>No appointments yet.</p>}
-      {appts.map((a) => (
-        <div key={a.id} style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12, margin: "12px 0" }}>
-          <b>{a.patient_id === user.id ? names.get(a.doctor_id) : names.get(a.patient_id)}</b>
-          <div>{when(a.slots)} (IST)</div>
-          {a.reason && <div>Reason: {a.reason}</div>}
-          <div>{LABEL[a.status] ?? a.status}</div>
-        </div>
-      ))}
+      {appts.map((a) => {
+        const s = slotOf(a.slots);
+        const start = s ? new Date(s.starts_at).getTime() : 0;
+        const end = s ? new Date(s.ends_at).getTime() : 0;
+        const live = a.status === "confirmed" && now >= start - 10 * 60000 && now <= end + 15 * 60000;
+        const isDoctor = a.doctor_id === user.id;
+        const rx = rxById.get(a.id);
+        const room = `https://meet.jit.si/carelink-${a.id.replace(/-/g, "")}`;
+        return (
+          <div key={a.id} style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12, margin: "12px 0" }}>
+            <b>{isDoctor ? names.get(a.patient_id) : names.get(a.doctor_id)}</b>
+            <div>
+              {s
+                ? new Date(s.starts_at).toLocaleString("en-IN", {
+                    timeZone: IST, weekday: "short", day: "numeric", month: "short",
+                    hour: "numeric", minute: "2-digit",
+                  })
+                : ""}{" "}(IST)
+            </div>
+            {a.reason && <div>Reason: {a.reason}</div>}
+            <div>{LABEL[a.status] ?? a.status}</div>
+            {a.status === "confirmed" && (
+              live ? (
+                <p><a href={room} target="_blank" rel="noopener noreferrer"><b>Join video consult</b></a></p>
+              ) : (
+                <p>The video link opens 10 minutes before the start time.</p>
+              )
+            )}
+            {isDoctor && !rx && (a.status === "confirmed" || a.status === "completed") && (
+              <p><Link href={`/appointments/${a.id}/rx`}>Write prescription</Link></p>
+            )}
+            {rx && (
+              <div style={{ background: "#f3f6f5", borderRadius: 8, padding: 10, marginTop: 8 }}>
+                <b>Prescription</b>
+                <div>Diagnosis: {rx.diagnosis}</div>
+                <div>Medicines:</div>
+                <ul>{(rx.medicines ?? []).map((m, i) => <li key={i}>{m}</li>)}</ul>
+                {rx.advice && <div>Advice: {rx.advice}</div>}
+                {rx.follow_up && <div>Follow-up: {rx.follow_up}</div>}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </main>
   );
 }
