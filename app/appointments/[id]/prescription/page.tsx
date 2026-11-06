@@ -133,7 +133,7 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
         <div className="sig" style={{ marginTop: "auto", paddingTop: 24, display: "flex", justifyContent: "flex-end" }}>
           <div style={{ textAlign: "center", minWidth: 240 }}>
             {di?.signature && (
-              <img src={di.signature} alt="Doctor signature" style={{ display: "block", margin: "0 auto", maxWidth: 200, height: "auto" }} />
+              <img src={di.signature} alt="Doctor signature" style={{ display: "block", margin: "0 auto", maxWidth: 200, height: "auto", opacity: 0.6 }} />
             )}
             <div style={{ borderTop: "1px solid #333", marginTop: 4, paddingTop: 4 }}>
               <b>{drName}</b>
