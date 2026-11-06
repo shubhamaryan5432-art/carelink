@@ -104,11 +104,17 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
         <Row k="Advice" v={rx.advice} />
         <Row k="Follow-up" v={rx.follow_up} />
 
-        <div style={{ marginTop: 24, textAlign: "right" }}>
-          {di?.signature && <img src={di.signature} alt="Doctor signature" style={{ maxWidth: 220, height: "auto" }} />}
-          <div><b>{drName}</b></div>
-          {di?.registration_number && <div>Reg. No: {di.registration_council} / {di.registration_number}</div>}
-          <div style={{ fontSize: 13 }}>Electronically signed on {fmt(rx.signed_at)} (IST)</div>
+                <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ textAlign: "center", minWidth: 240 }}>
+            {di?.signature && (
+              <img src={di.signature} alt="Doctor signature" style={{ display: "block", margin: "0 auto", maxWidth: 220, height: "auto" }} />
+            )}
+            <div style={{ borderTop: "1px solid #333", marginTop: 4, paddingTop: 4 }}>
+              <b>{drName}</b>
+              {di?.registration_number && <div>Reg. No: {di.registration_council} / {di.registration_number}</div>}
+              <div style={{ fontSize: 13 }}>Electronically signed on {fmt(rx.signed_at)} (IST)</div>
+            </div>
+          </div>
         </div>
 
         <div style={{ marginTop: 20, borderTop: "1px solid #999", paddingTop: 10, fontSize: 13 }}>
