@@ -68,7 +68,7 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
           @page { size: A4; margin: 10mm; }
           .no-print { display: none !important; }
           main { margin: 0 !important; padding: 0 !important; max-width: none !important; }
-          .sheet { border: none !important; padding: 0 !important; font-size: 13px !important; line-height: 1.45 !important; height: 245mm !important; min-height: 0 !important; box-sizing: border-box !important; }
+          .sheet { border: none !important; padding: 0 !important; font-size: 13px !important; line-height: 1.45 !important; height: 255mm !important; min-height: 0 !important; box-sizing: border-box !important; }
           .sheet h2 { font-size: 20px !important; }
           .sheet ol, .sheet ul { margin: 3px 0 !important; padding-left: 20px !important; }
           .sig img { max-height: 70px !important; width: auto !important; }
