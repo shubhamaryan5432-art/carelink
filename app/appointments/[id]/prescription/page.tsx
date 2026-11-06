@@ -27,7 +27,17 @@ const NOTES = [
 
 function Row({ k, v }: { k: string; v: string | number | null | undefined }) {
   if (v === null || v === undefined || v === "") return null;
-  return <div style={{ margin: "4px 0" }}><b>{k}:</b> {v}</div>;
+  return <div style={{ margin: "3px 0" }}><b>{k}:</b> {v}</div>;
+}
+
+function Line({ items }: { items: [string, string | number | null | undefined][] }) {
+  const shown = items.filter(([, v]) => v !== null && v !== undefined && v !== "");
+  if (shown.length === 0) return null;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 18px", margin: "3px 0" }}>
+      {shown.map(([k, v]) => <span key={k}><b>{k}:</b> {v}</span>)}
+    </div>
+  );
 }
 
 export default async function PrescriptionView({ params }: { params: Promise<{ id: string }> }) {
@@ -45,6 +55,7 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
 
   const di = rx.doctor_info;
   const v = rx.vitals ?? {};
+  const hasVitals = !!(v.bp || v.pulse || v.temp || v.spo2);
   const bmi = rx.weight_kg && rx.height_cm ? (rx.weight_kg / Math.pow(rx.height_cm / 100, 2)).toFixed(1) : null;
   const fmt = (iso: string) =>
     new Date(iso).toLocaleString("en-IN", { timeZone: IST, day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
@@ -52,13 +63,26 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
 
   return (
     <main style={{ maxWidth: 720, margin: "24px auto", padding: 16 }}>
-      <style>{`@media print { .no-print { display: none !important; } main { margin: 0 !important; padding: 0 !important; } }`}</style>
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 10mm; }
+          .no-print { display: none !important; }
+          main { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+          .sheet { border: none !important; padding: 0 !important; font-size: 12px !important; line-height: 1.35 !important; }
+          .sheet h2 { font-size: 18px !important; }
+          .sheet ol, .sheet ul { margin: 2px 0 !important; padding-left: 18px !important; }
+          .notes { font-size: 10px !important; line-height: 1.3 !important; margin-top: 10px !important; padding-top: 6px !important; }
+          .sig { margin-top: 12px !important; }
+          .sig img { max-height: 60px !important; width: auto !important; }
+          .sheet, .sig, .notes { break-inside: avoid; page-break-inside: avoid; }
+        }
+      `}</style>
       <div className="no-print" style={{ display: "flex", gap: 16, alignItems: "center" }}>
         <Link href="/appointments">Back</Link>
         <PrintButton />
       </div>
-      <div style={{ border: "1px solid #333", padding: 20, marginTop: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, borderBottom: "2px solid #333", paddingBottom: 10 }}>
+      <div className="sheet" style={{ border: "1px solid #333", padding: 20, marginTop: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, borderBottom: "2px solid #333", paddingBottom: 8 }}>
           <div>
             <h2 style={{ margin: 0 }}>{drName}</h2>
             {di?.qualification && <div>{di.qualification}</div>}
@@ -72,23 +96,27 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <div style={{ margin: "12px 0" }}>
+        <div style={{ margin: "8px 0" }}>
           <Row k="Patient" v={pt?.full_name} />
-          <Row k="Age" v={rx.patient_age} />
-          <Row k="Gender" v={rx.patient_gender} />
-          <Row k="Weight" v={rx.weight_kg ? `${rx.weight_kg} kg` : null} />
-          <Row k="Height" v={rx.height_cm ? `${rx.height_cm} cm` : null} />
-          <Row k="BMI" v={bmi} />
+          <Line items={[
+            ["Age", rx.patient_age],
+            ["Gender", rx.patient_gender],
+            ["Weight", rx.weight_kg ? `${rx.weight_kg} kg` : null],
+            ["Height", rx.height_cm ? `${rx.height_cm} cm` : null],
+            ["BMI", bmi],
+          ]} />
           <Row k="Consultation" v={slot ? fmt(slot.starts_at) + " (IST)" : null} />
         </div>
 
-        {(v.bp || v.pulse || v.temp || v.spo2) && (
-          <div style={{ margin: "12px 0" }}>
+        {hasVitals && (
+          <div style={{ margin: "8px 0" }}>
             <b>Vitals (as reported)</b>
-            <Row k="BP" v={v.bp} />
-            <Row k="Pulse" v={v.pulse} />
-            <Row k="Temperature" v={v.temp} />
-            <Row k="SpO2" v={v.spo2} />
+            <Line items={[
+              ["BP", v.bp],
+              ["Pulse", v.pulse],
+              ["Temperature", v.temp],
+              ["SpO2", v.spo2],
+            ]} />
           </div>
         )}
 
@@ -97,29 +125,29 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
         <Row k="Investigations" v={rx.investigations} />
         <Row k="Diagnosis (provisional)" v={rx.diagnosis} />
 
-        <div style={{ margin: "12px 0" }}>
+        <div style={{ margin: "8px 0" }}>
           <b>Medicines</b>
-          <ol>{(rx.medicines ?? []).map((m, i) => <li key={i}>{m}</li>)}</ol>
+          <ol style={{ margin: "4px 0" }}>{(rx.medicines ?? []).map((m, i) => <li key={i}>{m}</li>)}</ol>
         </div>
         <Row k="Advice" v={rx.advice} />
         <Row k="Follow-up" v={rx.follow_up} />
 
-                <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+        <div className="sig" style={{ marginTop: 20, display: "flex", justifyContent: "flex-end" }}>
           <div style={{ textAlign: "center", minWidth: 240 }}>
             {di?.signature && (
-              <img src={di.signature} alt="Doctor signature" style={{ display: "block", margin: "0 auto", maxWidth: 220, height: "auto" }} />
+              <img src={di.signature} alt="Doctor signature" style={{ display: "block", margin: "0 auto", maxWidth: 200, height: "auto" }} />
             )}
             <div style={{ borderTop: "1px solid #333", marginTop: 4, paddingTop: 4 }}>
               <b>{drName}</b>
               {di?.registration_number && <div>Reg. No: {di.registration_council} / {di.registration_number}</div>}
-              <div style={{ fontSize: 13 }}>Electronically signed on {fmt(rx.signed_at)} (IST)</div>
+              <div style={{ fontSize: 12 }}>Electronically signed on {fmt(rx.signed_at)} (IST)</div>
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: 20, borderTop: "1px solid #999", paddingTop: 10, fontSize: 13 }}>
+        <div className="notes" style={{ marginTop: 16, borderTop: "1px solid #999", paddingTop: 8, fontSize: 13 }}>
           <b>Note:</b>
-          <ol>{NOTES.map((n, i) => <li key={i}>{n}</li>)}</ol>
+          <ol style={{ margin: "4px 0" }}>{NOTES.map((n, i) => <li key={i}>{n}</li>)}</ol>
         </div>
       </div>
     </main>
