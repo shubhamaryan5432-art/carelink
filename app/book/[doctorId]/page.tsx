@@ -16,19 +16,24 @@ async function book(formData: FormData) {
   if (formData.get("consent") !== "on") redirect(`${back}?error=Please+tick+the+consent+box`);
   const name = String(formData.get("name") ?? "").trim();
   if (name) await sb.from("profiles").update({ full_name: name }).eq("id", user.id);
-  const { error } = await sb.from("appointments").insert({
-    doctor_id: doctorId,
-    slot_id: slotId,
-    reason: String(formData.get("reason") ?? "").slice(0, 500),
-    consent_given_at: new Date().toISOString(),
-  });
-  if (error) {
-    const m = error.code === "23505"
+  await sb.rpc("expire_unpaid");
+  const { data: created, error } = await sb
+    .from("appointments")
+    .insert({
+      doctor_id: doctorId,
+      slot_id: slotId,
+      reason: String(formData.get("reason") ?? "").slice(0, 500),
+      consent_given_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+  if (error || !created) {
+    const m = error?.code === "23505"
       ? "Sorry, that time was just taken. Please pick another."
       : "Could not book. Please try again.";
     redirect(`${back}?error=${encodeURIComponent(m)}`);
   }
-  redirect("/appointments");
+  redirect(`/pay/${created.id}`);
 }
 
 export default async function Book({
@@ -50,6 +55,7 @@ export default async function Book({
     .maybeSingle();
   if (!doc) redirect("/doctors");
   const { data: mine } = await sb.from("profiles").select("full_name").eq("id", user.id).single();
+  await sb.rpc("expire_unpaid");
   const { data } = await sb.rpc("free_slots", { doc: doctorId });
   const slots = (data ?? []) as Slot[];
 
@@ -87,7 +93,7 @@ export default async function Book({
           <label>
             <input type="checkbox" name="consent" /> I agree to a video consultation and to sharing my details with the doctor.
           </label>
-          <button type="submit">Book consultation</button>
+          <button type="submit">Continue to payment</button>
           {error && <p role="alert" style={{ color: "#b3261e" }}>{error}</p>}
         </form>
       )}
