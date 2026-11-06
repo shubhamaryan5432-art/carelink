@@ -27,14 +27,14 @@ const NOTES = [
 
 function Row({ k, v }: { k: string; v: string | number | null | undefined }) {
   if (v === null || v === undefined || v === "") return null;
-  return <div style={{ margin: "3px 0" }}><b>{k}:</b> {v}</div>;
+  return <div style={{ margin: "4px 0" }}><b>{k}:</b> {v}</div>;
 }
 
 function Line({ items }: { items: [string, string | number | null | undefined][] }) {
   const shown = items.filter(([, v]) => v !== null && v !== undefined && v !== "");
   if (shown.length === 0) return null;
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 18px", margin: "3px 0" }}>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 18px", margin: "4px 0" }}>
       {shown.map(([k, v]) => <span key={k}><b>{k}:</b> {v}</span>)}
     </div>
   );
@@ -68,20 +68,18 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
           @page { size: A4; margin: 10mm; }
           .no-print { display: none !important; }
           main { margin: 0 !important; padding: 0 !important; max-width: none !important; }
-          .sheet { border: none !important; padding: 0 !important; font-size: 12px !important; line-height: 1.35 !important; }
-          .sheet h2 { font-size: 18px !important; }
-          .sheet ol, .sheet ul { margin: 2px 0 !important; padding-left: 18px !important; }
-          .notes { font-size: 10px !important; line-height: 1.3 !important; margin-top: 10px !important; padding-top: 6px !important; }
-          .sig { margin-top: 12px !important; }
-          .sig img { max-height: 60px !important; width: auto !important; }
-          .sheet, .sig, .notes { break-inside: avoid; page-break-inside: avoid; }
+          .sheet { border: none !important; padding: 0 !important; font-size: 13px !important; line-height: 1.45 !important; height: 275mm !important; min-height: 0 !important; box-sizing: border-box !important; }
+          .sheet h2 { font-size: 20px !important; }
+          .sheet ol, .sheet ul { margin: 3px 0 !important; padding-left: 20px !important; }
+          .sig img { max-height: 70px !important; width: auto !important; }
+          .notes { font-size: 10.5px !important; line-height: 1.3 !important; }
         }
       `}</style>
       <div className="no-print" style={{ display: "flex", gap: 16, alignItems: "center" }}>
         <Link href="/appointments">Back</Link>
         <PrintButton />
       </div>
-      <div className="sheet" style={{ border: "1px solid #333", padding: 20, marginTop: 12 }}>
+      <div className="sheet" style={{ border: "1px solid #333", padding: 20, marginTop: 12, display: "flex", flexDirection: "column", minHeight: "250mm", boxSizing: "border-box" }}>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, borderBottom: "2px solid #333", paddingBottom: 8 }}>
           <div>
             <h2 style={{ margin: 0 }}>{drName}</h2>
@@ -96,7 +94,7 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <div style={{ margin: "8px 0" }}>
+        <div style={{ margin: "10px 0" }}>
           <Row k="Patient" v={pt?.full_name} />
           <Line items={[
             ["Age", rx.patient_age],
@@ -109,7 +107,7 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
         </div>
 
         {hasVitals && (
-          <div style={{ margin: "8px 0" }}>
+          <div style={{ margin: "10px 0" }}>
             <b>Vitals (as reported)</b>
             <Line items={[
               ["BP", v.bp],
@@ -125,14 +123,14 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
         <Row k="Investigations" v={rx.investigations} />
         <Row k="Diagnosis (provisional)" v={rx.diagnosis} />
 
-        <div style={{ margin: "8px 0" }}>
+        <div style={{ margin: "10px 0" }}>
           <b>Medicines</b>
           <ol style={{ margin: "4px 0" }}>{(rx.medicines ?? []).map((m, i) => <li key={i}>{m}</li>)}</ol>
         </div>
         <Row k="Advice" v={rx.advice} />
         <Row k="Follow-up" v={rx.follow_up} />
 
-        <div className="sig" style={{ marginTop: 20, display: "flex", justifyContent: "flex-end" }}>
+        <div className="sig" style={{ marginTop: "auto", paddingTop: 24, display: "flex", justifyContent: "flex-end" }}>
           <div style={{ textAlign: "center", minWidth: 240 }}>
             {di?.signature && (
               <img src={di.signature} alt="Doctor signature" style={{ display: "block", margin: "0 auto", maxWidth: 200, height: "auto" }} />
@@ -145,11 +143,11 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <div className="notes" style={{ marginTop: 16, borderTop: "1px solid #999", paddingTop: 8, fontSize: 13 }}>
+        <div className="notes" style={{ marginTop: 14, borderTop: "1px solid #999", paddingTop: 6, fontSize: 13 }}>
           <b>Note:</b>
-          <ol style={{ margin: "4px 0" }}>{NOTES.map((n, i) => <li key={i}>{n}</li>)}</ol>
+          <ol style={{ margin: "3px 0" }}>{NOTES.map((n, i) => <li key={i}>{n}</li>)}</ol>
         </div>
       </div>
     </main>
   );
-}
+                                                                    }
