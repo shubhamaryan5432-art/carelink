@@ -49,6 +49,7 @@ export default function PayButton({ appointmentId, amount }: { appointmentId: st
         currency: "INR",
         name: "Care for You",
         description: "Teleconsultation",
+                method: { upi: true, card: false, netbanking: false, wallet: false, emi: false, paylater: false },
         config: {
           display: {
             blocks: { upi: { name: "Pay with UPI", instruments: [{ method: "upi" }] } },
