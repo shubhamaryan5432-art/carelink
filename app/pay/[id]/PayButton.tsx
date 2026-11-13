@@ -49,6 +49,13 @@ export default function PayButton({ appointmentId, amount }: { appointmentId: st
         currency: "INR",
         name: "Care for You",
         description: "Teleconsultation",
+        config: {
+          display: {
+            blocks: { upi: { name: "Pay with UPI", instruments: [{ method: "upi" }] } },
+            sequence: ["block.upi"],
+            preferences: { show_default_blocks: false },
+          },
+        },
         handler: async (resp: RzResponse) => {
           const v = await fetch("/api/pay/verify", {
             method: "POST",
