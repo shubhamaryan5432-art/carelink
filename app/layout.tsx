@@ -1,4 +1,4 @@
-export const metadata = { title: "CareLink", description: "Consult a doctor by video" };
+export const metadata = { title: "Care for You", description: "Consult a doctor by video" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
