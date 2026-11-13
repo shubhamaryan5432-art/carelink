@@ -1,97 +1,47 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase/client";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { supabaseServer } from "@/lib/supabase/server";
 
-export default function Login() {
-  const sb = supabaseBrowser();
-  const router = useRouter();
-  const [mode, setMode] = useState<"email" | "phone">("email");
-  const [id, setId] = useState("");
-  const [code, setCode] = useState("");
-  const [sent, setSent] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
+async function signOut() {
+  "use server";
+  const sb = await supabaseServer();
+  await sb.auth.signOut();
+  redirect("/");
+}
 
-  const digits = id.replace(/\D/g, "");
-  const phone = "+91" + digits.slice(-10);
-  const email = id.trim().toLowerCase();
-  const valid = mode === "email" ? /^\S+@\S+\.\S+$/.test(email) : digits.length >= 10;
-
-  function switchMode(m: "email" | "phone") {
-    setMode(m); setId(""); setCode(""); setSent(false); setMsg("");
+export default async function Home() {
+  const sb = await supabaseServer();
+  const { data: { user } } = await sb.auth.getUser();
+  let role = "";
+  if (user) {
+    const { data } = await sb.from("profiles").select("role").eq("id", user.id).single();
+    role = data?.role ?? "";
   }
-
-  async function send() {
-    setBusy(true); setMsg("");
-    const { error } =
-      mode === "email"
-        ? await sb.auth.signInWithOtp({ email })
-        : await sb.auth.signInWithOtp({ phone });
-    setBusy(false);
-    if (error) setMsg(error.message);
-    else setSent(true);
-  }
-
-  async function verify() {
-    setBusy(true); setMsg("");
-    const { error } =
-      mode === "email"
-        ? await sb.auth.verifyOtp({ email, token: code.trim(), type: "email" })
-        : await sb.auth.verifyOtp({ phone, token: code.trim(), type: "sms" });
-    setBusy(false);
-    if (error) setMsg(error.message);
-    else { router.push("/"); router.refresh(); }
-  }
-
-  const box = { display: "block", width: "100%", padding: 10, margin: "6px 0 12px", fontSize: 16 } as const;
-  const tab = (active: boolean) =>
-    ({
-      flex: 1, padding: 12, fontSize: 16, cursor: "pointer", borderRadius: 8,
-      border: active ? "2px solid #0f5c57" : "1px solid #999",
-      background: active ? "#0f5c57" : "#fff",
-      color: active ? "#fff" : "#222",
-    }) as const;
 
   return (
-    <main style={{ maxWidth: 380, margin: "40px auto", padding: 16 }}>
-      <h1>Sign in (email or mobile)</h1>
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <button type="button" onClick={() => switchMode("email")} style={tab(mode === "email")}>Use email</button>
-        <button type="button" onClick={() => switchMode("phone")} style={tab(mode === "phone")}>Use mobile</button>
-      </div>
-      {!sent ? (
+    <main style={{ maxWidth: 480, margin: "40px auto", padding: 16 }}>
+      <h1>Care for You</h1>
+      {user ? (
         <>
-          <label>
-            {mode === "email" ? "Email address" : "Mobile number (10 digits)"}
-            <input
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              type={mode === "email" ? "email" : "tel"}
-              inputMode={mode === "email" ? "email" : "numeric"}
-              placeholder={mode === "email" ? "you@example.com" : "9876543210"}
-              style={box}
-            />
-          </label>
-          <button onClick={send} disabled={!valid || busy} style={{ padding: "10px 16px", fontSize: 16 }}>
-            {busy ? "Sending..." : "Send code"}
-          </button>
+          <p>Signed in as <b>{user.email ?? user.phone}</b></p>
+          <p><Link href="/doctors">Find a doctor</Link></p>
+          <p><Link href="/appointments">My appointments</Link></p>
+          {role === "doctor" && (
+            <>
+              <p><Link href="/doctor/slots">My available times</Link></p>
+              <p><Link href="/doctor/profile">My doctor profile</Link></p>
+            </>
+          )}
+          {role === "patient" && <p><Link href="/doctor/apply">Apply as a doctor</Link></p>}
+          {role === "admin" && <p><Link href="/admin">Admin</Link></p>}
+          <form action={signOut}><button type="submit">Sign out</button></form>
         </>
       ) : (
         <>
-          <label>
-            Enter the code sent to {mode === "email" ? email : phone}
-            <input value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" style={box} />
-          </label>
-          <button onClick={verify} disabled={code.trim().length < 4 || busy} style={{ padding: "10px 16px", fontSize: 16 }}>
-            {busy ? "Checking..." : "Verify"}
-          </button>
-          <button type="button" onClick={() => { setSent(false); setCode(""); setMsg(""); }} style={{ marginLeft: 8, padding: "10px 16px", fontSize: 16 }}>
-            Back
-          </button>
+          <p>See a doctor on video.</p>
+          <p><Link href="/login">Sign in</Link></p>
         </>
       )}
-      <p role="alert" style={{ color: "#b3261e" }}>{msg}</p>
     </main>
   );
 }
