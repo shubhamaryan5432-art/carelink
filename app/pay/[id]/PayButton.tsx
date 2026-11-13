@@ -47,7 +47,7 @@ export default function PayButton({ appointmentId, amount }: { appointmentId: st
         order_id: o.orderId,
         amount: o.amount,
         currency: "INR",
-        name: "CareLink",
+        name: "Care for You",
         description: "Teleconsultation",
         handler: async (resp: RzResponse) => {
           const v = await fetch("/api/pay/verify", {
