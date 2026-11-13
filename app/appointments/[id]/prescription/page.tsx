@@ -90,7 +90,7 @@ export default async function PrescriptionView({ params }: { params: Promise<{ i
           <div style={{ textAlign: "right" }}>
             {di?.contact_phone && <div>Phone: {di.contact_phone}</div>}
             {di?.contact_email && <div>{di.contact_email}</div>}
-            <div>CareLink teleconsultation</div>
+            <div>Care for You teleconsultation</div>
           </div>
         </div>
 
