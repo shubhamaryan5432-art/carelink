@@ -89,9 +89,7 @@ export default async function Home() {
           <div>
             <h1>Find a doctor for you</h1>
             <p className="sub">Consult a registered doctor on video from home. Book a time, pay by UPI, and get your prescription online.</p>
-            <div className="row">
-              <Link href="/doctors" className="btn">Get started</Link>
-              <a href="#how" className="btn2">How it works</a>
+
             </div>
           </div>
           <div className="art">
