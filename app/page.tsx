@@ -46,6 +46,10 @@ const css = `
 .hp .grid3{grid-template-columns:repeat(3,1fr)}
 .hp .book{grid-template-columns:1fr 1fr 1fr auto;align-items:center}
 }
+.hp .art{--r:130px;height:calc(var(--r)*2 + 60px)}
+.hp .circle{width:calc(var(--r)*2);height:calc(var(--r)*2)}
+.hp .c1{top:50%;left:50%;right:auto;bottom:auto;transform:translate(calc(-50% - var(--r)*0.5),calc(-50% - var(--r)*0.866))}
+@media(min-width:800px){.hp .art{--r:160px}}
 `;
 
 export default async function Home() {
