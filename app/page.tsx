@@ -103,7 +103,7 @@ export default async function Home() {
 
         <div className="book">
           <div><small>Speciality</small><b>General Physician</b></div>
-          <div><small>Consultation</small><b>Video, about 15 minutes</b></div>
+          <div><small>Consultation</small><b>Video/Voice</b></div>
           <div><small>Fee</small><b>{SITE.fee}</b></div>
           <Link href="/doctors" className="btn">Book now</Link>
         </div>
