@@ -91,7 +91,9 @@ export default async function Home() {
             </div>
           </div>
           <div className="art">
-                        <img src="/1794655300202.png" alt="Doctor" className="circle" style={{ objectFit: "cover" }} />
+                                    <div className="circle" style={{ overflow: "hidden" }}>
+              <img src="/1794655300202.png" alt="Doctor" style={{ width: "70%", height: "70%", objectFit: "cover", objectPosition: "60% 8%", borderRadius: 18 }} />
+            </div>
             <div className="chip c1">🔒 Private and secure</div>
             <div className="chip c2">💳 Pay by UPI</div>
           </div>
