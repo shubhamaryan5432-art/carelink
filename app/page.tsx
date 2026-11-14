@@ -89,8 +89,7 @@ export default async function Home() {
           <div>
             <h1>Find a doctor for you</h1>
             <p className="sub">Consult a registered doctor on video from home. Book a time, pay by UPI, and get your prescription online.</p>
-
-            </div>
+          </div>
           </div>
           <div className="art">
                                           <img src="/1794655300202.png" alt="Doctor" className="circle" style={{ objectFit: "cover" }} />
