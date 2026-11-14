@@ -9,9 +9,12 @@ async function signOut() {
   await sb.auth.signOut();
   redirect("/");
 }
-
 const specialties = [
-  { icon: "🩺", name: "General Physician", desc: "Everyday health concerns" },
+  {
+    icon: "🩺",
+    name: "General Physician",
+    desc: "Consultation for common health problems and general medical care",
+  },
 ];
 
 export default async function Home() {
