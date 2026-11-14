@@ -98,6 +98,7 @@ export default async function Home() {
                                           <img src="/1794655300202.png" alt="Doctor" className="circle" style={{ objectFit: "cover" }} />
             <div className="chip c1">🔒 Private and secure</div>
             <div className="chip c2">💳 Pay by UPI</div>
+            <div className="chip c3">🤩Easy and convenient booking</div>
           </div>
         </header>
 
