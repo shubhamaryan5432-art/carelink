@@ -84,11 +84,7 @@ export default async function Home() {
             <Link href="/pricing">Pricing</Link>
             <Link href="/contact">Contact</Link>
           </div>
-          {user ? (
-            <Link href="/appointments" className="btn2">My appointments</Link>
-          ) : (
-            <Link href="/login" className="btn">Sign in / Sign up</Link>
-          )}
+                  {user && <Link href="/appointments" className="btn2">My appointments</Link>}
         </nav>
 
         <header className="hero">
