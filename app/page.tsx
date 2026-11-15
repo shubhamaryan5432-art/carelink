@@ -146,7 +146,6 @@ export default async function Home() {
                 <p><Link href="/doctor/profile" style={{ color: "#087f80" }}>My Doctor Profile</Link></p>
               </>
             )}
-            {role === "patient" && <p><Link href="/doctor/apply" style={{ color: "#087f80" }}>Apply as a Doctor</Link></p>}
             {role === "admin" && <p><Link href="/admin" style={{ color: "#087f80" }}>Admin Dashboard</Link></p>}
             <form action={signOut}><button type="submit" className="btn2">Sign out</button></form>
           </section>
