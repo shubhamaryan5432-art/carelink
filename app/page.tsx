@@ -53,7 +53,7 @@ const css = `
 .hp .art{--r:100px;--cx:calc(var(--r) + 10px);justify-content:flex-start}
 .hp .circle{margin-left:10px}
 .hp .c1{left:var(--cx)}
-.hp .c3{left:var(--cx);top:50%;right:auto;bottom:auto;max-width:100px;font-size:13px;line-height:1.3;transform:translate(calc(var(--r)*0.966 - 15px),calc(var(--r)*0.259 - 50%))}
+.hp .c3{left:var(--cx);top:50%;right:auto;bottom:auto;max-width:100px;font-size:13px;line-height:1.3;transform:translate(calc(var(--r)*0.966 - 10px),calc(var(--r)*0.259 - 50%))}
 @media(min-width:800px){.hp .art{--r:120px}}
 @media(min-width:1100px){.hp .art{--r:150px}}
 `;
@@ -102,7 +102,7 @@ export default async function Home() {
                                           <img src="/1794655300202.png" alt="Doctor" className="circle" style={{ objectFit: "cover" }} />
             <div className="chip c1">🔒 Private and secure</div>
             <div className="chip c2">💳 Pay by UPI</div>
-            <div className="chip c3">🤩Easy and convenient booking</div>
+            <div className="chip c3">🤩Easy booking</div>
           </div>
         </header>
 
