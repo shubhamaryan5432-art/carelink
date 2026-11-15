@@ -129,8 +129,9 @@ export default async function Home() {
           <h2>Our Speciality</h2>
           <div className="tint">
             <h3 style={{ marginTop: 0 }}>🩺 General Physician</h3>
-            <p style={{ marginBottom: 0 }}>Consultation for general medical problems and healthcare.</p>
+          <p style={{ marginBottom: 0 }}>Consultation for general medical problems and healthcare.</p>
           </div>
+          <p style={{ marginTop: 14, color: "#4a6b71" }}>More specialities will be added in the future.</p>
         </section>
 
         <section>
