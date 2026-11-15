@@ -53,7 +53,7 @@ const css = `
 .hp .art{--r:100px;--cx:calc(var(--r) + 10px);justify-content:flex-start}
 .hp .circle{margin-left:10px}
 .hp .c1{left:var(--cx)}
-.hp .c3{left:var(--cx);top:50%;right:auto;bottom:auto;max-width:100px;font-size:13px;line-height:1.3;transform:translate(calc(var(--r)*0.966 - 30px),calc(var(--r)*0.259 - 50%))}
+.hp .c3{left:var(--cx);top:50%;right:auto;bottom:auto;max-width:100px;font-size:13px;line-height:1.3;transform:translate(calc(var(--r)*0.966 - 40px),calc(var(--r)*0.259 - 50%))}
 @media(min-width:800px){.hp .art{--r:120px}}
 @media(min-width:1100px){.hp .art{--r:150px}}
 `;
