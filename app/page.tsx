@@ -102,10 +102,15 @@ export default async function Home() {
           </div>
         </header>
 
-        <div className="book">
+          <div className="book" style={{ marginBottom: 14 }}>
           <div><small>Speciality</small><b>General Physician</b></div>
           <div><small>Consultation</small><b>Video/Voice</b></div>
-         <Link href="/doctors" className="btn">Book now</Link>
+          <Link href="/doctors" className="btn">Book now</Link>
+        </div>
+        <div className="book">
+          <div><small>Speciality</small><b>Dental Surgeon</b></div>
+          <div><small>Consultation</small><b>Video/Voice</b></div>
+          <Link href="/doctors?speciality=dental" className="btn">Book now</Link>
         </div>
 
         <section id="how">
