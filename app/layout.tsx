@@ -17,6 +17,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/terms">Terms and Conditions</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/refund">Refund and Cancellation</Link>
+            <Link href="/doctor/login">Doctor login / sign up</Link>
+            <Link href="/admin/login">Admin login</Link>
           </nav>
           <p>© {SITE.name}. Not for emergencies: call 112.</p>
         </footer>
